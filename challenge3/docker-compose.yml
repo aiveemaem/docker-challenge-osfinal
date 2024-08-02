@@ -1,0 +1,40 @@
+services:
+  nginx:
+    build: 
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    image: challenge3-nginx
+    container_name: challenge3-nginx-1
+    ports:
+      - "8080:80"
+    depends_on:
+      - node-service
+
+  node-service:
+    build: 
+      context: ./docker/api
+      dockerfile: Dockerfile
+    image: challenge3-node-service
+    container_name: challenge3-node-service-1
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  db:
+    image: challenge3-db
+    container_name: challenge3-db-1
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
